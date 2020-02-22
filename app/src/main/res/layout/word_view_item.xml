@@ -23,13 +23,13 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/word_name_txt"
+                android:id="@+id/name_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="8dp"
-                android:text="Word Name"
+                android:text="@string/word_name"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 app:layout_constraintStart_toEndOf="@+id/word_image"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -41,9 +41,9 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="8dp"
-                android:text="[Pronunciation]"
+                android:text="@string/pronunciation"
                 app:layout_constraintStart_toEndOf="@+id/word_image"
-                app:layout_constraintTop_toBottomOf="@+id/word_name_txt" />
+                app:layout_constraintTop_toBottomOf="@+id/name_txt" />
 
             <ImageView
                 android:id="@+id/word_image"
@@ -53,6 +53,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
+                android:contentDescription="@string/word_image"
                 android:scaleType="fitXY"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -70,7 +71,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginBottom="8dp"
-                android:text="Score"
+                android:text="@string/score"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

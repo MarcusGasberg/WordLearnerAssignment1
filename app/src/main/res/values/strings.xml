@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">WordLearnerAssignment1</string>
     <string name="my_words">My Words:</string>
+    <string name="edit">Edit</string>
+    <string name="pronunciation">[Pronunciation]</string>
+    <string name="score">Score</string>
+    <string name="word_name">Word Name</string>
+    <string name="description">Description:</string>
+    <string name="notes">Notes:</string>
+    <string name="word_image">Image of word</string>
+    <string name="exit">Exit</string>
 </resources>

@@ -6,12 +6,16 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import java.util.List;
 
 public class WordListActivity extends AppCompatActivity {
     private RecyclerView wordRecycler;
+    private Button exitBtn;
     private WordViewModelFactory viewModelFactory;
     private WordViewModel viewModel;
 
@@ -21,6 +25,8 @@ public class WordListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         wordRecycler = findViewById(R.id.word_recycler_view);
+        exitBtn = findViewById(R.id.exit_btn);
+
         final WordListAdapter adapter = new WordListAdapter(this);
         wordRecycler.setAdapter(adapter);
         wordRecycler.setLayoutManager(new LinearLayoutManager(this));
@@ -32,6 +38,16 @@ public class WordListActivity extends AppCompatActivity {
             @Override
             public void onChanged(List<Word> words) {
                 adapter.setWords(words);
+            }
+        });
+
+        exitBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent exitIntent = new Intent(Intent.ACTION_MAIN);
+                exitIntent.addCategory(Intent.CATEGORY_HOME);
+                exitIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(exitIntent);
             }
         });
     }

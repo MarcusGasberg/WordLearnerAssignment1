@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LærOrdAflevering1</string>
+    <string name="description">Beskrivelse:</string>
+    <string name="edit">Rediger</string>
+    <string name="exit">Forlad</string>
+    <string name="my_words">Mine ord:</string>
+    <string name="notes">Noter:</string>
+    <string name="pronunciation">[Udtale]</string>
+    <string name="score">Karakter</string>
+    <string name="word_image">Billede af ord</string>
+    <string name="word_name">Navn på ord</string>
+</resources>

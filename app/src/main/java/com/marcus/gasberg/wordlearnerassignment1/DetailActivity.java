@@ -1,6 +1,8 @@
 package com.marcus.gasberg.wordlearnerassignment1;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -27,7 +29,7 @@ public class DetailActivity extends AppCompatActivity {
     WordViewModelFactory viewModelFactory;
     WordViewModel viewModel;
 
-    Word currentWord;
+    private int wordId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,25 +47,14 @@ public class DetailActivity extends AppCompatActivity {
         editBtn = findViewById(R.id.edit_btn);
 
         final Intent intent = getIntent();
-        int wordId = intent.getIntExtra("index", -1);
+        wordId = intent.getIntExtra("id", 0);
 
         viewModelFactory = new WordViewModelFactory(getApplication());
         viewModel = viewModelFactory.create(WordViewModel.class);
-        currentWord = viewModel.getWord(wordId);
 
-        try{
-            InputStream stream = getAssets().open("img/" + currentWord.ImageName);
-            Bitmap bmp = BitmapFactory.decodeStream(stream);
-            image.setImageBitmap(bmp);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        Word currentWord = viewModel.getWord(wordId);
 
-        nameTxt.setText(currentWord.Name);
-        pronunciationTxt.setText(currentWord.Pronunciation);
-        descriptionTxt.setText(currentWord.Description);
-        notesTxt.setText(currentWord.Notes);
-        scoreTxt.setText(String.valueOf(currentWord.Rating));
+        setWord(currentWord);
 
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,5 +63,31 @@ public class DetailActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        editBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent editIntent = new Intent(v.getContext(), EditActivity.class);
+                editIntent.putExtra("id", wordId);
+                startActivity(editIntent);
+            }
+        });
+    }
+
+    private void setWord(Word word) {
+
+        try{
+            InputStream stream = getAssets().open("img/" + word.ImageName);
+            Bitmap bmp = BitmapFactory.decodeStream(stream);
+            image.setImageBitmap(bmp);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        nameTxt.setText(word.Name);
+        pronunciationTxt.setText(word.Pronunciation);
+        descriptionTxt.setText(word.Description);
+        notesTxt.setText(word.Notes);
+        scoreTxt.setText(String.valueOf(word.Rating));
     }
 }
