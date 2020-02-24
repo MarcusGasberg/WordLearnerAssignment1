@@ -1,6 +1,5 @@
 package com.marcus.gasberg.wordlearnerassignment1;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;

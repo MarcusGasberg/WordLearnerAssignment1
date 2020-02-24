@@ -1,7 +1,6 @@
 package com.marcus.gasberg.wordlearnerassignment1;
 
 import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 

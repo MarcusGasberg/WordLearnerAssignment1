@@ -28,6 +28,9 @@ public class DummyWordDbSeeder extends RoomDatabase.Callback {
         WordDb.execute(new Runnable() {
             @Override
             public void run() {
+                WordDao dao = WordDb.getInstance(context).wordDao();
+                dao.deleteAll();
+
                 InputStream csvStream = null;
                 AssetManager assManager = context.getAssets();
 
@@ -44,7 +47,7 @@ public class DummyWordDbSeeder extends RoomDatabase.Callback {
                         word.ImageName = data[NAME_INDEX].toLowerCase() + ".jpg";
                         word.Pronunciation = data[PRONUNCIATION_INDEX];
 
-                        WordDb.getInstance(context).wordDao().insert(word);
+                        dao.insert(word);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
