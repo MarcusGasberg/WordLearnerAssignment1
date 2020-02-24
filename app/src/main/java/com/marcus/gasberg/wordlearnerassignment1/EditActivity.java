@@ -53,7 +53,7 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onChanged(Word word) {
                 if(word != null){
-                    setWord(word);
+                    bind(word);
                 }
             }
         });
@@ -117,7 +117,7 @@ public class EditActivity extends AppCompatActivity {
         });
     }
 
-    private void setWord(Word word){
+    private void bind(Word word){
         nameTxt.setText(word.Name);
         pronunciationTxt.setText(word.Pronunciation);
         notesTxt.setText(word.Notes);

@@ -23,7 +23,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
     private Context context;
     private List<Word> wordsCache;
 
-    public WordListAdapter(Context context) {
+    WordListAdapter(Context context) {
         layoutInflater = LayoutInflater.from(context);
         this.context = context;
     }
@@ -48,7 +48,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
         return wordsCache != null ? wordsCache.size() : 0;
     }
 
-    public void setWords(List<Word> words){
+    void setWords(List<Word> words){
         wordsCache = words;
         notifyDataSetChanged();
     }
@@ -60,7 +60,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
         private final TextView scoreTxt;
         private final CardView card;
 
-        public WordViewHolder(@NonNull View itemView) {
+        WordViewHolder(@NonNull View itemView) {
             super(itemView);
             wordNameTxt = itemView.findViewById(R.id.name_txt);
             pronunciationTxt = itemView.findViewById(R.id.pronunciation_txt);
@@ -85,19 +85,9 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
             wordNameTxt.setText(word.Name);
             pronunciationTxt.setText(word.Pronunciation);
             scoreTxt.setText(String.valueOf(word.Rating));
-            InputStream stream = null;
-            try{
-                stream = context.getAssets().open("img/" + word.ImageName);
-
-                Bitmap bmp = BitmapFactory.decodeStream(stream);
-                wordImage.setImageBitmap(bmp);
-            } catch(IOException e){
-                // File doesn't exists
-            } finally {
-                try {
-                    stream.close();
-                }catch (Exception e){ }
-            }
+            String path = ImageHelpers.getAnimalPath(word.Name);
+            Bitmap bmp = ImageHelpers.getBitmapFromAssets(context, path);
+            wordImage.setImageBitmap(bmp);
         }
     }
 }

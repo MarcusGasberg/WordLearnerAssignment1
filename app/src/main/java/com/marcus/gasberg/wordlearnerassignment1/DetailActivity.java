@@ -58,7 +58,7 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onChanged(Word word) {
                 if(word != null){
-                    setWord(word);
+                    bind(word);
                 }
             }
         });
@@ -81,16 +81,10 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
-    private void setWord(Word word) {
-
-        try{
-            InputStream stream = getAssets().open("img/" + word.ImageName);
-            Bitmap bmp = BitmapFactory.decodeStream(stream);
-            image.setImageBitmap(bmp);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
+    private void bind(Word word) {
+        String path = ImageHelpers.getAnimalPath(word.Name);
+        Bitmap bmp = ImageHelpers.getBitmapFromAssets(getApplicationContext(), path);
+        image.setImageBitmap(bmp);
         nameTxt.setText(word.Name);
         pronunciationTxt.setText(word.Pronunciation);
         descriptionTxt.setText(word.Description);
