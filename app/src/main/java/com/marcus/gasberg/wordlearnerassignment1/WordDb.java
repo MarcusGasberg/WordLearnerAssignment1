@@ -6,11 +6,6 @@ import android.content.res.AssetManager;
 import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

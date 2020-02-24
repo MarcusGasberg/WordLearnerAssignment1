@@ -1,5 +1,6 @@
 package com.marcus.gasberg.wordlearnerassignment1;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -23,7 +24,6 @@ public class EditActivity extends AppCompatActivity {
     Button okBtn;
 
     private int wordId;
-    private WordViewModelFactory viewModelFactory;
     private WordViewModel viewModel;
     private LiveData<Word> currentWord;
     private String notes;
@@ -34,27 +34,19 @@ public class EditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
 
-        nameTxt = findViewById(R.id.name_txt);
-        pronunciationTxt = findViewById(R.id.pronunciation_txt);
-        notesTxt = findViewById(R.id.notes_txt);
-        scoreTxt = findViewById(R.id.score_txt);
-        scoreBar = findViewById(R.id.score_bar);
-        cancelBtn = findViewById(R.id.cancel_btn);
-        okBtn = findViewById(R.id.ok_btn);
+        initView();
+        initViewModel();
 
         final Intent intent = getIntent();
         wordId = intent.getIntExtra("id", 0);
 
-        viewModelFactory = new WordViewModelFactory(getApplication());
-        viewModel = viewModelFactory.create(WordViewModel.class);
+
         currentWord = viewModel.getWord(wordId);
 
         currentWord.observe(this, new Observer<Word>() {
             @Override
-            public void onChanged(Word word) {
-                if(word != null){
-                    bind(word);
-                }
+            public void onChanged(@NonNull Word word) {
+                bind(word);
             }
         });
 
@@ -68,21 +60,15 @@ public class EditActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) { }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) { }
         });
 
         notesTxt.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -90,9 +76,7 @@ public class EditActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-
-            }
+            public void afterTextChanged(Editable s) { }
         });
 
         cancelBtn.setOnClickListener(new View.OnClickListener() {
@@ -109,12 +93,30 @@ public class EditActivity extends AppCompatActivity {
                 Intent result = new Intent(v.getContext(), WordListActivity.class);
                 result.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 Word update = currentWord.getValue();
-                update.Notes = notes;
-                update.Rating = rating;
-                viewModel.update(update);
+                if(update != null){
+                    update.Notes = notes;
+                    update.Rating = rating;
+                    viewModel.update(update);
+                }
+
                 startActivity(result);
             }
         });
+    }
+
+    private void initViewModel() {
+        WordViewModelFactory viewModelFactory = new WordViewModelFactory(getApplication());
+        viewModel = viewModelFactory.create(WordViewModel.class);
+    }
+
+    private void initView() {
+        nameTxt = findViewById(R.id.name_txt);
+        pronunciationTxt = findViewById(R.id.pronunciation_txt);
+        notesTxt = findViewById(R.id.notes_txt);
+        scoreTxt = findViewById(R.id.score_txt);
+        scoreBar = findViewById(R.id.score_bar);
+        cancelBtn = findViewById(R.id.cancel_btn);
+        okBtn = findViewById(R.id.ok_btn);
     }
 
     private void bind(Word word){

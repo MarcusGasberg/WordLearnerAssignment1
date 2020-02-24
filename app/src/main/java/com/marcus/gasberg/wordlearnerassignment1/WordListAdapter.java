@@ -3,7 +3,6 @@ package com.marcus.gasberg.wordlearnerassignment1;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,13 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordViewHolder> {
     private final LayoutInflater layoutInflater;
-    private Context context;
+    private final Context context;
     private List<Word> wordsCache;
 
     WordListAdapter(Context context) {
@@ -54,19 +51,15 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
     }
 
     class WordViewHolder extends RecyclerView.ViewHolder{
-        private final TextView wordNameTxt;
-        private final TextView pronunciationTxt;
-        private final ImageView wordImage;
-        private final TextView scoreTxt;
-        private final CardView card;
+        private TextView wordNameTxt;
+        private TextView pronunciationTxt;
+        private ImageView wordImage;
+        private TextView scoreTxt;
+        private CardView card;
 
         WordViewHolder(@NonNull View itemView) {
             super(itemView);
-            wordNameTxt = itemView.findViewById(R.id.name_txt);
-            pronunciationTxt = itemView.findViewById(R.id.pronunciation_txt);
-            scoreTxt = itemView.findViewById(R.id.score_txt);
-            wordImage = itemView.findViewById(R.id.word_image);
-            card = itemView.findViewById(R.id.word_card);
+            initView();
 
             card.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -81,13 +74,22 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
             });
         }
 
-        public void bind(Word word){
+        void bind(Word word){
             wordNameTxt.setText(word.Name);
             pronunciationTxt.setText(word.Pronunciation);
             scoreTxt.setText(String.valueOf(word.Rating));
+
             String path = ImageHelpers.getAnimalPath(word.Name);
             Bitmap bmp = ImageHelpers.getBitmapFromAssets(context, path);
             wordImage.setImageBitmap(bmp);
+        }
+
+        private void initView(){
+            wordNameTxt = itemView.findViewById(R.id.name_txt);
+            pronunciationTxt = itemView.findViewById(R.id.pronunciation_txt);
+            scoreTxt = itemView.findViewById(R.id.score_txt);
+            wordImage = itemView.findViewById(R.id.word_image);
+            card = itemView.findViewById(R.id.word_card);
         }
     }
 }

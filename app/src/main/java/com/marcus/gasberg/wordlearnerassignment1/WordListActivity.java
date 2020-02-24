@@ -1,5 +1,6 @@
 package com.marcus.gasberg.wordlearnerassignment1;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -16,7 +17,7 @@ import java.util.List;
 public class WordListActivity extends AppCompatActivity {
     private RecyclerView wordRecycler;
     private Button exitBtn;
-    private WordViewModelFactory viewModelFactory;
+    private WordListAdapter adapter;
     private WordViewModel viewModel;
 
     @Override
@@ -24,19 +25,13 @@ public class WordListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        wordRecycler = findViewById(R.id.word_recycler_view);
-        exitBtn = findViewById(R.id.exit_btn);
-
-        final WordListAdapter adapter = new WordListAdapter(this);
-        wordRecycler.setAdapter(adapter);
-        wordRecycler.setLayoutManager(new LinearLayoutManager(this));
-
-        viewModelFactory = new WordViewModelFactory(getApplication());
-        viewModel = new ViewModelProvider(this, viewModelFactory).get(WordViewModel.class);
+        initView();
+        initRecycler();
+        initViewModel();
 
         viewModel.getWords().observe(this, new Observer<List<Word>>() {
             @Override
-            public void onChanged(List<Word> words) {
+            public void onChanged(@NonNull List<Word> words) {
                 adapter.setWords(words);
             }
         });
@@ -50,5 +45,21 @@ public class WordListActivity extends AppCompatActivity {
                 startActivity(exitIntent);
             }
         });
+    }
+
+    private void initView() {
+        wordRecycler = findViewById(R.id.word_recycler_view);
+        exitBtn = findViewById(R.id.exit_btn);
+    }
+
+    private void initRecycler() {
+        adapter = new WordListAdapter(this);
+        wordRecycler.setAdapter(adapter);
+        wordRecycler.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void initViewModel() {
+        WordViewModelFactory viewModelFactory = new WordViewModelFactory(getApplication());
+        viewModel = new ViewModelProvider(this, viewModelFactory).get(WordViewModel.class);
     }
 }

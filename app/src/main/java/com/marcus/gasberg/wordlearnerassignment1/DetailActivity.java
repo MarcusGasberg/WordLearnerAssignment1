@@ -1,5 +1,6 @@
 package com.marcus.gasberg.wordlearnerassignment1;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -16,18 +17,17 @@ import android.widget.TextView;
 import java.io.InputStream;
 
 public class DetailActivity extends AppCompatActivity {
-    ImageView image;
-    TextView nameTxt;
-    TextView pronunciationTxt;
-    TextView descriptionTxt;
-    TextView notesTxt;
-    TextView scoreTxt;
+    private ImageView image;
+    private TextView nameTxt;
+    private TextView pronunciationTxt;
+    private TextView descriptionTxt;
+    private TextView notesTxt;
+    private TextView scoreTxt;
+    private Button cancelBtn;
+    private Button editBtn;
 
-    Button cancelBtn;
-    Button editBtn;
-
-    WordViewModelFactory viewModelFactory;
-    WordViewModel viewModel;
+    private WordViewModelFactory viewModelFactory;
+    private WordViewModel viewModel;
 
     private int wordId;
 
@@ -36,30 +36,18 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        image = findViewById(R.id.word_image);
-        nameTxt = findViewById(R.id.name_txt);
-        pronunciationTxt = findViewById(R.id.pronunciation_txt);
-        descriptionTxt = findViewById(R.id.description_txt);
-        notesTxt = findViewById(R.id.notes_txt);
-        scoreTxt = findViewById(R.id.score_txt);
-
-        cancelBtn = findViewById(R.id.cancel_btn);
-        editBtn = findViewById(R.id.edit_btn);
+        initViews();
+        initViewModel();
 
         final Intent intent = getIntent();
         wordId = intent.getIntExtra("id", 0);
-
-        viewModelFactory = new WordViewModelFactory(getApplication());
-        viewModel = viewModelFactory.create(WordViewModel.class);
 
         LiveData<Word> currentWord = viewModel.getWord(wordId);
 
         currentWord.observe(this, new Observer<Word>() {
             @Override
-            public void onChanged(Word word) {
-                if(word != null){
-                    bind(word);
-                }
+            public void onChanged(@NonNull Word word) {
+                bind(word);
             }
         });
 
@@ -81,14 +69,31 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
+    private void initViews() {
+        image = findViewById(R.id.word_image);
+        nameTxt = findViewById(R.id.name_txt);
+        pronunciationTxt = findViewById(R.id.pronunciation_txt);
+        descriptionTxt = findViewById(R.id.description_txt);
+        notesTxt = findViewById(R.id.notes_txt);
+        scoreTxt = findViewById(R.id.score_txt);
+        cancelBtn = findViewById(R.id.cancel_btn);
+        editBtn = findViewById(R.id.edit_btn);
+    }
+
+    private void initViewModel() {
+        viewModelFactory = new WordViewModelFactory(getApplication());
+        viewModel = viewModelFactory.create(WordViewModel.class);
+    }
+
     private void bind(Word word) {
-        String path = ImageHelpers.getAnimalPath(word.Name);
-        Bitmap bmp = ImageHelpers.getBitmapFromAssets(getApplicationContext(), path);
-        image.setImageBitmap(bmp);
         nameTxt.setText(word.Name);
         pronunciationTxt.setText(word.Pronunciation);
         descriptionTxt.setText(word.Description);
         notesTxt.setText(word.Notes);
         scoreTxt.setText(String.valueOf(word.Rating));
+
+        String path = ImageHelpers.getAnimalPath(word.Name);
+        Bitmap bmp = ImageHelpers.getBitmapFromAssets(getApplicationContext(), path);
+        image.setImageBitmap(bmp);
     }
 }
