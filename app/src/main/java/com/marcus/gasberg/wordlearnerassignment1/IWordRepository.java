@@ -6,7 +6,7 @@ import java.util.List;
 
 interface IWordRepository {
     LiveData<List<Word>> getAllWords();
-    Word getWord(int id);
+    LiveData<Word> getWord(int id);
     void insert(Word word);
     void update(Word word);
 }

@@ -12,17 +12,17 @@ public class WordViewModel extends AndroidViewModel {
     private LiveData<List<Word>> words;
     private final IWordRepository wordRepository;
 
-    public WordViewModel(@NonNull Application application) {
+    WordViewModel(@NonNull Application application) {
         super(application);
-        wordRepository = new DummyWordRepository(application);
+        wordRepository = new WordRepository(application);
         words = wordRepository.getAllWords();
     }
 
-    public LiveData<List<Word>> getWords(){
+    LiveData<List<Word>> getWords(){
         return words;
     }
 
-    public Word getWord(int id){
+    LiveData<Word> getWord(int id){
         return wordRepository.getWord(id);
     }
 
@@ -30,5 +30,5 @@ public class WordViewModel extends AndroidViewModel {
         wordRepository.insert(word);
     }
 
-    public void update(Word word) { wordRepository.update(word);}
+    void update(Word word) { wordRepository.update(word);}
 }

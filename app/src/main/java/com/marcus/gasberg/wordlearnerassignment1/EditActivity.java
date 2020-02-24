@@ -25,7 +25,9 @@ public class EditActivity extends AppCompatActivity {
     private int wordId;
     private WordViewModelFactory viewModelFactory;
     private WordViewModel viewModel;
-    private Word currentWord;
+    private LiveData<Word> currentWord;
+    private String notes;
+    private int rating;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,14 +48,22 @@ public class EditActivity extends AppCompatActivity {
         viewModelFactory = new WordViewModelFactory(getApplication());
         viewModel = viewModelFactory.create(WordViewModel.class);
         currentWord = viewModel.getWord(wordId);
-        setWord(currentWord);
+
+        currentWord.observe(this, new Observer<Word>() {
+            @Override
+            public void onChanged(Word word) {
+                if(word != null){
+                    setWord(word);
+                }
+            }
+        });
 
         scoreBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if(fromUser){
-                    currentWord.Rating = progress;
-                    setWord(currentWord);
+                    rating = progress;
+                    scoreTxt.setText(String.valueOf(rating));
                 }
             }
 
@@ -76,7 +86,7 @@ public class EditActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                currentWord.Notes = s.toString();
+                notes = s.toString();
             }
 
             @Override
@@ -98,7 +108,10 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent result = new Intent(v.getContext(), WordListActivity.class);
                 result.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                viewModel.update(currentWord);
+                Word update = currentWord.getValue();
+                update.Notes = notes;
+                update.Rating = rating;
+                viewModel.update(update);
                 startActivity(result);
             }
         });

@@ -2,6 +2,7 @@ package com.marcus.gasberg.wordlearnerassignment1;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
 import android.content.Intent;
@@ -52,9 +53,16 @@ public class DetailActivity extends AppCompatActivity {
         viewModelFactory = new WordViewModelFactory(getApplication());
         viewModel = viewModelFactory.create(WordViewModel.class);
 
-        Word currentWord = viewModel.getWord(wordId);
+        LiveData<Word> currentWord = viewModel.getWord(wordId);
 
-        setWord(currentWord);
+        currentWord.observe(this, new Observer<Word>() {
+            @Override
+            public void onChanged(Word word) {
+                if(word != null){
+                    setWord(word);
+                }
+            }
+        });
 
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
