@@ -81,8 +81,10 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
 
             String path = ImageHelpers.getAnimalPath(word.Name);
             Bitmap bmp = ImageHelpers.getBitmapFromAssets(context, path);
-            wordImage.setImageBitmap(bmp);
-        }
+            if(bmp != null){
+                wordImage.setImageBitmap(bmp);
+            }
+    }
 
         private void initView(){
             wordNameTxt = itemView.findViewById(R.id.name_txt);

@@ -94,6 +94,8 @@ public class DetailActivity extends AppCompatActivity {
 
         String path = ImageHelpers.getAnimalPath(word.Name);
         Bitmap bmp = ImageHelpers.getBitmapFromAssets(getApplicationContext(), path);
-        image.setImageBitmap(bmp);
+        if(bmp != null){
+            image.setImageBitmap(bmp);
+        }
     }
 }
