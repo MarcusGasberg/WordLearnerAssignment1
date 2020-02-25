@@ -7,14 +7,11 @@ import androidx.lifecycle.Observer;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.io.InputStream;
 
 public class DetailActivity extends AppCompatActivity {
     private ImageView image;
@@ -92,8 +89,7 @@ public class DetailActivity extends AppCompatActivity {
         notesTxt.setText(word.Notes);
         scoreTxt.setText(String.valueOf(word.Rating));
 
-        String path = ImageHelpers.getAnimalPath(word.Name);
-        Bitmap bmp = ImageHelpers.getBitmapFromAssets(getApplicationContext(), path);
+        Bitmap bmp = ImageHelpers.getBitmapFromAssets(getApplicationContext(), word.ImagePath);
         if(bmp != null){
             image.setImageBitmap(bmp);
         }

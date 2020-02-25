@@ -19,6 +19,6 @@ public class Word {
     String Pronunciation;
     String Description;
     int Rating;
-    String ImageName;
+    String ImagePath;
     String Notes;
 }

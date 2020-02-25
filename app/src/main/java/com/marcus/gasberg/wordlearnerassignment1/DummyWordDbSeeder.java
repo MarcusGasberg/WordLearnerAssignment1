@@ -37,17 +37,19 @@ public class DummyWordDbSeeder extends RoomDatabase.Callback {
                 try {
                     csvStream = assManager.open("animal_list.csv");
                     BufferedReader reader = new BufferedReader(new InputStreamReader(csvStream));
-                    String line;
+                    String line = removeUTF8BOM(reader.readLine());
 
-                    while((line = reader.readLine()) != null){
+                    while(line != null){
                         String[] data = line.split(";");
 
                         Word word = new Word(data[NAME_INDEX]);
                         word.Description = data[DESCRIPTION_INDEX];
-                        word.ImageName = data[NAME_INDEX].toLowerCase() + ".jpg";
+                        String fileEnding = data[NAME_INDEX].toLowerCase().equals("camel") ? ".png" : ".jpg";
+                        word.ImagePath =  "img/" + data[NAME_INDEX].toLowerCase() + fileEnding;
                         word.Pronunciation = data[PRONUNCIATION_INDEX];
-
                         dao.insert(word);
+
+                        line = reader.readLine();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -62,5 +64,12 @@ public class DummyWordDbSeeder extends RoomDatabase.Callback {
                 }
             }
         });
+    }
+
+    private static String removeUTF8BOM(String s) {
+        if (s.startsWith("\uFEFF")) {
+            s = s.substring(1);
+        }
+        return s;
     }
 }

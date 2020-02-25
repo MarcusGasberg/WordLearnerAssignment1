@@ -16,16 +16,12 @@ class ImageHelpers {
 
             bmpResult = BitmapFactory.decodeStream(stream);
         } catch(IOException e){
-            // File doesn't exists
+            // File not found
         } finally {
             try {
                 stream.close();
             }catch (Exception ignored){ }
         }
         return bmpResult;
-    }
-
-    static String getAnimalPath(String animalName){
-        return "img/"+animalName.toLowerCase()+".jpg";
     }
 }

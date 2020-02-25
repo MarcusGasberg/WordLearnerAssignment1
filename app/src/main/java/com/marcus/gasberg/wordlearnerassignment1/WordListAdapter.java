@@ -79,8 +79,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
             pronunciationTxt.setText(word.Pronunciation);
             scoreTxt.setText(String.valueOf(word.Rating));
 
-            String path = ImageHelpers.getAnimalPath(word.Name);
-            Bitmap bmp = ImageHelpers.getBitmapFromAssets(context, path);
+            Bitmap bmp = ImageHelpers.getBitmapFromAssets(context, word.ImagePath);
             if(bmp != null){
                 wordImage.setImageBitmap(bmp);
             }

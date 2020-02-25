@@ -116,7 +116,7 @@ public class EditActivity extends AppCompatActivity {
         scoreTxt = findViewById(R.id.score_txt);
         scoreBar = findViewById(R.id.score_bar);
         cancelBtn = findViewById(R.id.cancel_btn);
-        okBtn = findViewById(R.id.ok_btn);
+        okBtn = findViewById(R.id.edit_btn);
     }
 
     private void bind(Word word){
