@@ -1,11 +1,12 @@
 package com.marcus.gasberg.wordlearnerassignment1;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 
-import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
+
+import com.marcus.gasberg.wordlearnerassignment1.Models.Word;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,12 +23,8 @@ public abstract class WordDb extends RoomDatabase {
     private static volatile WordDb instance;
 
     private static final int NUM_THREADS = 4;
-    private static final ExecutorService executorService =
+    public static final ExecutorService executorService =
             Executors.newFixedThreadPool(NUM_THREADS);
-
-    static void execute(Runnable command){
-        executorService.execute(command);
-    }
 
     static WordDb getInstance(final Context context){
         if (instance == null) {

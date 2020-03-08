@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.marcus.gasberg.wordlearnerassignment1.Models.Word;
+
 import java.util.List;
 
 public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordViewHolder> {
@@ -67,7 +69,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
                     Intent intent = new Intent(context, DetailActivity.class);
 
                     Word wordSelected = wordsCache.get(getAdapterPosition());
-                    intent.putExtra("id", wordSelected.Id);
+                    intent.putExtra("word", wordSelected.Name);
 
                     context.startActivity(intent);
                 }

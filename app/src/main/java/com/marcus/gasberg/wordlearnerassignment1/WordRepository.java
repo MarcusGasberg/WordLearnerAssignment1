@@ -1,16 +1,21 @@
 package com.marcus.gasberg.wordlearnerassignment1;
 
 import android.app.Application;
+import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
 
+import com.marcus.gasberg.wordlearnerassignment1.Models.Word;
+
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class WordRepository implements IWordRepository {
-    private LiveData<List<Word>> words;
     private WordDao wordDao;
     private WordDb database;
+    private LiveData<List<Word>> words;
+    private LiveData<Word> currentWord;
 
     WordRepository(Application application){
         database = WordDb.getInstance(application);
@@ -24,12 +29,13 @@ public class WordRepository implements IWordRepository {
     }
 
     @Override
-    public LiveData<Word> getWord(final int id) {
-        return wordDao.get(id);
+    public LiveData<Word> getWord(final String name) {
+        currentWord = wordDao.get(name);
+        return currentWord;
     }
 
     public void insert(final Word word){
-        WordDb.execute(new Runnable() {
+        WordDb.executorService.execute(new Runnable() {
             @Override
             public void run() {
                 wordDao.insert(word);
@@ -39,7 +45,7 @@ public class WordRepository implements IWordRepository {
 
     @Override
     public void update(final Word word) {
-        WordDb.execute(new Runnable() {
+        WordDb.executorService.execute(new Runnable() {
             @Override
             public void run() {
                 wordDao.update(word);

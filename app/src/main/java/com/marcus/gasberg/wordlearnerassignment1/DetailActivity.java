@@ -5,13 +5,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.marcus.gasberg.wordlearnerassignment1.Models.Word;
+
+import java.util.List;
 
 public class DetailActivity extends AppCompatActivity {
     private ImageView image;
@@ -23,10 +35,11 @@ public class DetailActivity extends AppCompatActivity {
     private Button cancelBtn;
     private Button editBtn;
 
-    private WordViewModelFactory viewModelFactory;
-    private WordViewModel viewModel;
-
-    private int wordId;
+    private Word currentWord;
+    private Messenger messenger;
+    private boolean serviceBound;
+    private WordService service;
+    private String wordId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,19 +47,11 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         initViews();
-        initViewModel();
 
         final Intent intent = getIntent();
-        wordId = intent.getIntExtra("id", 0);
+        wordId = intent.getStringExtra("word");
 
-        LiveData<Word> currentWord = viewModel.getWord(wordId);
-
-        currentWord.observe(this, new Observer<Word>() {
-            @Override
-            public void onChanged(@NonNull Word word) {
-                bind(word);
-            }
-        });
+        messenger = new Messenger(new IncomingHandler(this));
 
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,10 +65,29 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent editIntent = new Intent(v.getContext(), EditActivity.class);
-                editIntent.putExtra("id", wordId);
+                editIntent.putExtra("word", currentWord.Name);
                 startActivity(editIntent);
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Bind to the service
+        Intent bindIntent = new Intent(this, WordService.class);
+        bindIntent.putExtra(WordService.EXTRA_MESSENGER, messenger);
+        bindService(bindIntent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (serviceBound) {
+            unbindService(connection);
+            serviceBound = false;
+        }
     }
 
     private void initViews() {
@@ -75,11 +99,6 @@ public class DetailActivity extends AppCompatActivity {
         scoreTxt = findViewById(R.id.score_txt);
         cancelBtn = findViewById(R.id.cancel_btn);
         editBtn = findViewById(R.id.edit_btn);
-    }
-
-    private void initViewModel() {
-        viewModelFactory = new WordViewModelFactory(getApplication());
-        viewModel = viewModelFactory.create(WordViewModel.class);
     }
 
     private void bind(Word word) {
@@ -94,4 +113,39 @@ public class DetailActivity extends AppCompatActivity {
             image.setImageBitmap(bmp);
         }
     }
+
+    private class IncomingHandler extends Handler {
+        private Context applicationContext;
+
+        IncomingHandler(Context context) {
+            applicationContext = context.getApplicationContext();
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+        }
+    }
+
+    private Observer<Word> wordObserver = new Observer<Word>() {
+        @Override
+        public void onChanged(Word word) {
+            currentWord = word;
+            bind(word);
+        }
+    };
+
+    private ServiceConnection connection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder binder) {
+            serviceBound = true;
+            WordService.LocalBinder localBinder  = (WordService.LocalBinder)binder;
+            service = localBinder.getService();
+            service.getWord(wordId).observeForever(wordObserver);
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            serviceBound = false;
+            service.getWord(wordId).removeObserver(wordObserver);
+        }
+    };
 }

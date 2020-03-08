@@ -5,14 +5,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.marcus.gasberg.wordlearnerassignment1.Models.Word;
 
 public class EditActivity extends AppCompatActivity {
     TextView nameTxt;
@@ -23,11 +32,20 @@ public class EditActivity extends AppCompatActivity {
     Button cancelBtn;
     Button okBtn;
 
-    private int wordId;
-    private WordViewModel viewModel;
-    private LiveData<Word> currentWord;
+    private Word currentWord;
+    private WordService service;
     private String notes;
     private int rating;
+    private String wordId;
+    private boolean serviceBound;
+    private Messenger messenger;
+    private Observer<Word> wordObserver = new Observer<Word>() {
+        @Override
+        public void onChanged(Word word) {
+            currentWord = word;
+            bind(word);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,20 +53,16 @@ public class EditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit);
 
         initView();
-        initViewModel();
 
         final Intent intent = getIntent();
-        wordId = intent.getIntExtra("id", 0);
+        wordId = intent.getStringExtra("word");
 
+        messenger = new Messenger(new EditActivity.IncomingHandler(this));
 
-        currentWord = viewModel.getWord(wordId);
-
-        currentWord.observe(this, new Observer<Word>() {
-            @Override
-            public void onChanged(@NonNull Word word) {
-                bind(word);
-            }
-        });
+        if (savedInstanceState != null) {
+            notes = savedInstanceState.getString("notes");
+            rating = savedInstanceState.getInt("rating");
+        }
 
         scoreBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -90,11 +104,11 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent result = new Intent(v.getContext(), WordListActivity.class);
                 result.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                Word update = currentWord.getValue();
+                Word update = currentWord;
                 if(update != null){
                     update.Notes = notes;
                     update.Rating = rating;
-                    viewModel.update(update);
+                    service.update(update);
                 }
 
                 startActivity(result);
@@ -102,9 +116,30 @@ public class EditActivity extends AppCompatActivity {
         });
     }
 
-    private void initViewModel() {
-        WordViewModelFactory viewModelFactory = new WordViewModelFactory(getApplication());
-        viewModel = viewModelFactory.create(WordViewModel.class);
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Bind to the service
+        Intent bindIntent = new Intent(this, WordService.class);
+        bindIntent.putExtra(WordService.EXTRA_MESSENGER, messenger);
+        bindService(bindIntent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (serviceBound) {
+            unbindService(connection);
+            serviceBound = false;
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt("rating", rating);
+        outState.putString("notes", notes);
+        super.onSaveInstanceState(outState);
     }
 
     private void initView() {
@@ -120,8 +155,36 @@ public class EditActivity extends AppCompatActivity {
     private void bind(Word word){
         nameTxt.setText(word.Name);
         pronunciationTxt.setText(word.Pronunciation);
-        notesTxt.setText(word.Notes);
-        scoreTxt.setText(String.valueOf(word.Rating));
-        scoreBar.setProgress(word.Rating);
+        notesTxt.setText(notes);
+        scoreTxt.setText(String.valueOf(rating));
+        scoreBar.setProgress(rating);
     }
+
+
+    private class IncomingHandler extends Handler {
+        private Context applicationContext;
+
+        IncomingHandler(Context context) {
+            applicationContext = context.getApplicationContext();
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+        }
+    }
+
+    private ServiceConnection connection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder binder) {
+            serviceBound = true;
+            WordService.LocalBinder localBinder  = (WordService.LocalBinder)binder;
+            service = localBinder.getService();
+            service.getWord(wordId).observeForever(wordObserver);
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            serviceBound = false;
+            service.getWord(wordId).removeObserver(wordObserver);
+        }
+    };
 }

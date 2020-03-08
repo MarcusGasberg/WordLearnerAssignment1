@@ -7,6 +7,8 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import com.marcus.gasberg.wordlearnerassignment1.Models.Word;
+
 import java.util.List;
 
 @Dao
@@ -26,6 +28,6 @@ public interface WordDao {
     @Query("SELECT * FROM word_table")
     LiveData<List<Word>> getAllWords();
 
-    @Query("SELECT * FROM word_table WHERE Id=:id")
-    LiveData<Word> get(int id);
+    @Query("SELECT * FROM word_table WHERE Name=:name")
+    LiveData<Word> get(String name);
 }

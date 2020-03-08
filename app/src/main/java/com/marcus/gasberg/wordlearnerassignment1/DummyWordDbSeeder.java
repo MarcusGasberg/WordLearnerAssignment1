@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.marcus.gasberg.wordlearnerassignment1.Models.Word;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,7 +27,7 @@ public class DummyWordDbSeeder extends RoomDatabase.Callback {
     @Override
     public void onOpen(@NonNull SupportSQLiteDatabase db) {
         super.onOpen(db);
-        WordDb.execute(new Runnable() {
+        WordDb.executorService.execute(new Runnable() {
             @Override
             public void run() {
                 WordDao dao = WordDb.getInstance(context).wordDao();
