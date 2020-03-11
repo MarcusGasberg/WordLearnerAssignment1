@@ -4,8 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "word_table")
-public class Word {
+public class Word implements Serializable {
     public Word(){}
 
     public Word(@NonNull String name){

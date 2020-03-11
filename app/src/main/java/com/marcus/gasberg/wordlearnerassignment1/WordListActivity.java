@@ -1,19 +1,20 @@
 package com.marcus.gasberg.wordlearnerassignment1;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -29,17 +30,10 @@ public class WordListActivity extends AppCompatActivity {
     private WordListAdapter adapter;
     private Button addBtn;
     private TextView searchTxt;
-
-    private Messenger messenger = null;
-    private WordService service;
-    private boolean serviceBound = false;
     private Context context;
-    private Observer<List<Word>> wordsObserver = new Observer<List<Word>>() {
-        @Override
-        public void onChanged(List<Word> words) {
-            adapter.setWords(words);
-        }
-    };
+    private WordService service;
+    private boolean serviceBound;
+    private WordListBroadcastReceiver br;
 
 
     @Override
@@ -50,7 +44,12 @@ public class WordListActivity extends AppCompatActivity {
         initView();
         initRecycler();
         context = this;
-        messenger = new Messenger(new IncomingHandler(context));
+
+        br = new WordListBroadcastReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(WordService.WORD_ADDED);
+        filter.addAction(WordService.WORD_UPDATED);
+        LocalBroadcastManager.getInstance(this).registerReceiver(br, filter);
 
         exitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,7 +66,7 @@ public class WordListActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String word = searchTxt.getText().toString();
                 word = word.substring(0,1).toUpperCase() + word.substring(1);
-                service.insertWord(word);
+                service.createWord(context, word);
             }
         });
     }
@@ -78,7 +77,6 @@ public class WordListActivity extends AppCompatActivity {
 
         // Bind to the service
         Intent bindIntent = new Intent(this, WordService.class);
-        bindIntent.putExtra(WordService.EXTRA_MESSENGER, messenger);
         bindService(bindIntent, connection, Context.BIND_AUTO_CREATE);
     }
 
@@ -104,25 +102,32 @@ public class WordListActivity extends AppCompatActivity {
         wordRecycler.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    class IncomingHandler extends Handler {
-        private Context applicationContext;
-
-        IncomingHandler(Context context) {
-            applicationContext = context.getApplicationContext();
-        }
-
+    private class WordListBroadcastReceiver extends BroadcastReceiver {
+        private static final String TAG = "WordListBroadcastReceiver";
         @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case WordService.MSG_ERROR:
-                    Toast.makeText(applicationContext,
-                            "Something went wrong while fetching word!",
-                            Toast.LENGTH_SHORT)
-                            .show();
-                    break;
-                default:
-                    super.handleMessage(msg);
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action != null){
+                handleMessageReceived(action);
             }
+        }
+    }
+
+    private void handleMessageReceived(String action) {
+        switch (action) {
+            case WordService.WORD_ADDED:
+            case WordService.WORD_UPDATED:
+                List<Word> words = service.getWords();
+                adapter.setWords(words);
+                break;
+            case WordService.ERROR:
+                Toast.makeText(getApplicationContext(),
+                        "Something went wrong while fetching word!",
+                        Toast.LENGTH_SHORT)
+                        .show();
+                break;
+            default:
+                break;
         }
     }
 
@@ -132,12 +137,10 @@ public class WordListActivity extends AppCompatActivity {
             serviceBound = true;
             WordService.LocalBinder localBinder  = (WordService.LocalBinder)binder;
             service = localBinder.getService();
-            service.getWords().observeForever(wordsObserver);
         }
 
         public void onServiceDisconnected(ComponentName className) {
             serviceBound = false;
-            service.getWords().removeObserver(wordsObserver);
         }
     };
 

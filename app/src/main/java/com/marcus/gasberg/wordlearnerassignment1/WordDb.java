@@ -32,8 +32,7 @@ public abstract class WordDb extends RoomDatabase {
                 if (instance == null) {
                     instance = databaseBuilder(context.getApplicationContext(),
                         WordDb.class, "word_db")
-                        .addCallback(new DummyWordDbSeeder(context))
-                        .build();
+                            .build();
                 }
             }
         }

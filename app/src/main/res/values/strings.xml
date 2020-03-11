@@ -9,4 +9,5 @@
     <string name="notes">Notes:</string>
     <string name="word_image">Image of word</string>
     <string name="exit">Exit</string>
+    <string name="notification_message">\"Doing work...\"</string>
 </resources>

@@ -26,8 +26,8 @@ public interface WordDao {
     void deleteAll();
 
     @Query("SELECT * FROM word_table")
-    LiveData<List<Word>> getAllWords();
+    List<Word> getAllWords();
 
     @Query("SELECT * FROM word_table WHERE Name=:name")
-    LiveData<Word> get(String name);
+    Word get(String name);
 }

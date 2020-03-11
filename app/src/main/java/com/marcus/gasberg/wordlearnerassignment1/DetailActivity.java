@@ -1,13 +1,14 @@
 package com.marcus.gasberg.wordlearnerassignment1;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -23,9 +24,8 @@ import android.widget.Toast;
 
 import com.marcus.gasberg.wordlearnerassignment1.Models.Word;
 
-import java.util.List;
-
 public class DetailActivity extends AppCompatActivity {
+    private static final int EDIT_REQUEST = 3000;
     private ImageView image;
     private TextView nameTxt;
     private TextView pronunciationTxt;
@@ -40,6 +40,7 @@ public class DetailActivity extends AppCompatActivity {
     private boolean serviceBound;
     private WordService service;
     private String wordId;
+    private DetailsBroadcastReceiver br;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,12 @@ public class DetailActivity extends AppCompatActivity {
         final Intent intent = getIntent();
         wordId = intent.getStringExtra("word");
 
-        messenger = new Messenger(new IncomingHandler(this));
+        br = new DetailsBroadcastReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(WordService.WORD_UPDATED);
+        filter.addAction(WordService.ERROR);
+        LocalBroadcastManager.getInstance(this).registerReceiver(br, filter);
+
 
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,7 +72,7 @@ public class DetailActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent editIntent = new Intent(v.getContext(), EditActivity.class);
                 editIntent.putExtra("word", currentWord.Name);
-                startActivity(editIntent);
+                startActivityForResult(editIntent, EDIT_REQUEST);
             }
         });
     }
@@ -78,15 +84,24 @@ public class DetailActivity extends AppCompatActivity {
         // Bind to the service
         Intent bindIntent = new Intent(this, WordService.class);
         bindIntent.putExtra(WordService.EXTRA_MESSENGER, messenger);
-        bindService(bindIntent, connection, Context.BIND_AUTO_CREATE);
+        getApplicationContext().bindService(bindIntent, connection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         if (serviceBound) {
-            unbindService(connection);
+            getApplicationContext().unbindService(connection);
             serviceBound = false;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == DetailActivity.EDIT_REQUEST){
+            setResult(RESULT_OK);
+            finish();
         }
     }
 
@@ -114,38 +129,45 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    private class IncomingHandler extends Handler {
-        private Context applicationContext;
-
-        IncomingHandler(Context context) {
-            applicationContext = context.getApplicationContext();
-        }
-
+    private class DetailsBroadcastReceiver extends BroadcastReceiver {
+        private static final String TAG = "DetailsBroadcastReceiver";
         @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action != null){
+                handleMessageReceived(action);
+            }
         }
     }
 
-    private Observer<Word> wordObserver = new Observer<Word>() {
-        @Override
-        public void onChanged(Word word) {
-            currentWord = word;
-            bind(word);
+    private void handleMessageReceived(String action) {
+        switch (action) {
+            case WordService.WORD_UPDATED:
+                currentWord = service.getCurrentWord();
+                bind(currentWord);
+                break;
+            case WordService.ERROR:
+                Toast.makeText(getApplicationContext(),
+                        "Something went wrong while fetching word!",
+                        Toast.LENGTH_SHORT)
+                        .show();
+                break;
+            default:
+                break;
         }
-    };
+    }
+
 
     private ServiceConnection connection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
             serviceBound = true;
             WordService.LocalBinder localBinder  = (WordService.LocalBinder)binder;
             service = localBinder.getService();
-            service.getWord(wordId).observeForever(wordObserver);
+            service.setCurrentWord(getApplicationContext(), wordId);
         }
 
         public void onServiceDisconnected(ComponentName className) {
             serviceBound = false;
-            service.getWord(wordId).removeObserver(wordObserver);
         }
     };
 }
